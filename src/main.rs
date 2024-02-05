@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .route("/users", web::get().to(handlers::get_users))
-            /*.route("/users/{id}", web::get().to(handlers::get_user_by_id))
+            .route("/users/{id}", web::get().to(handlers::get_user_by_id))/*
             .route("/users", web::post().to(handlers::add_user))
             .route("/users/{id}", web::delete().to(handlers::delete_user))*/
     })

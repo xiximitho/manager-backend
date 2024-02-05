@@ -7,6 +7,6 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: rust_postgres
     volumes:
-       - ./data:/var/lib/postgresql/data
+       - /home/felipe/data_pg:/var/lib/postgresql/data
     ports:
        - "5432:5432"
