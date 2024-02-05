@@ -4,15 +4,7 @@ use super::Pool;
 use crate::diesel::RunQueryDsl;
 use actix_web::{web, Error, HttpResponse};
 use diesel::QueryDsl;
-use serde::{Deserialize, Serialize};
 use std::vec::Vec;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct InputUser {
-    pub first_name: String,
-    pub last_name: String,
-    pub email: String,
-}
 
 pub async fn get_users(db: web::Data<Pool>) -> Result<HttpResponse, Error> {
     match get_all_users(db).await {
