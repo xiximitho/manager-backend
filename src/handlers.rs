@@ -2,51 +2,49 @@ use super::models::User;
 use super::schema::users::dsl::*;
 use super::Pool;
 use crate::{diesel::RunQueryDsl, models::NewUser};
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, Error, HttpResponse, http::StatusCode};
 use diesel::{insert_into, QueryDsl};
 use serde_json::json;
 use std::vec::Vec;
 use serde::{Serialize, Deserialize};
 
-pub async fn get_users(db: web::Data<Pool>) -> Result<HttpResponse, Error> {
+pub async fn get_users(db: web::Data<Pool>) -> HttpResponse {
     match get_all_users(db).await {
-        Ok(v_users) => {
-            let json_result = serde_json::to_string(&json!({ "User": &v_users}));
+        Ok(vec_users) => {
+            let json_result = serde_json::to_string(&json!({ "User": &vec_users}));
 
             match json_result {
-                Ok(json) => Ok(HttpResponse::Ok().content_type("application/json").body(json)),
-                Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+                Ok(json) => HttpResponse::Ok().content_type("application/json").body(json),
+                Err(_) => HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body("Error in convert JSON")
             }
         }
-        Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+        Err(error) => HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(error.to_string())
     }
 }
 
-async fn get_all_users(pool: web::Data<Pool>) -> Result<Vec<User>, diesel::result::Error> {
+async fn get_all_users(pool: web::Data<Pool>) ->  Result<Vec<User>, diesel::result::Error> {
     let mut conn = pool.get().unwrap();
-    let items = users.load::<User>(&mut conn)?;
-    Ok(items)
+    users.load::<User>(&mut conn)
 }
 
-pub async fn get_user_by_id(db: web::Data<Pool>, user_id: web::Path<i32>) -> Result<HttpResponse, Error> {
+pub async fn get_user_by_id(db: web::Data<Pool>, user_id: web::Path<i32>) -> HttpResponse {
     
     match db_get_user_by_id(db, user_id.into_inner()).await {
         Ok(user_db_l) => {
             
             let json_result = serde_json::to_string_pretty(&json!({ "User": &user_db_l}));
             match json_result {
-                Ok(json) => Ok(HttpResponse::Ok().content_type("application/json").body(json)),
-                Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+                Ok(json) => HttpResponse::Ok().content_type("application/json").body(json),
+                Err(_) => HttpResponse::InternalServerError().finish(),
             }
         }
-        Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+        Err(error) => HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(error.to_string())
     }
 }
 
-async fn db_get_user_by_id(pool: web::Data<Pool>, user_id: i32) -> Result<User, diesel::result::Error> {
+async fn db_get_user_by_id(pool: web::Data<Pool>, user_id: i32) -> Result<User, diesel::result::Error>{
     let mut conn = pool.get().unwrap();
-    let user = users.find(user_id).get_result::<User>(&mut conn)?;
-    Ok(user)
+    users.find(user_id).get_result::<User>(&mut conn)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
