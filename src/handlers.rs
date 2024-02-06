@@ -14,7 +14,7 @@ pub async fn get_users(db: web::Data<Pool>) -> Result<HttpResponse, Error> {
             let json_result = serde_json::to_string(&json!({ "User": &v_users}));
 
             match json_result {
-                Ok(json) => Ok(HttpResponse::Ok().json(json)),
+                Ok(json) => Ok(HttpResponse::Ok().content_type("application/json").body(json)),
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         }
@@ -35,7 +35,7 @@ pub async fn get_user_by_id(db: web::Data<Pool>, user_id: web::Path<i32>) -> Res
             
             let json_result = serde_json::to_string_pretty(&json!({ "User": &user_db_l}));
             match json_result {
-                Ok(json) => Ok(HttpResponse::Ok().content_type("application/json").json(json.replace("\n", ""))),
+                Ok(json) => Ok(HttpResponse::Ok().content_type("application/json").body(json)),
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         }
@@ -66,7 +66,7 @@ pub async fn add_user(
         Ok(added) => {
             let json_result = serde_json::to_string(&added);
             match json_result {
-                Ok(json) => Ok(HttpResponse::Created().json(json)),
+                Ok(json) => Ok(HttpResponse::Created().content_type("application/json").body(json)),
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         },
