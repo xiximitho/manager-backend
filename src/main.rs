@@ -6,7 +6,7 @@ use routes::users_config;
 use std::env;
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-mod handlers;
+#[path = "./models/models.rs"]
 mod models;
 #[path = "./routes/routes.rs"]
 mod routes;

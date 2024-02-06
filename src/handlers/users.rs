@@ -1,6 +1,6 @@
-use super::models::User;
-use super::schema::users::dsl::*;
-use super::Pool;
+use crate::models::User;
+use crate::schema::users::dsl::*;
+use crate::Pool;
 use crate::{diesel::RunQueryDsl, models::NewUser};
 use actix_web::{http::StatusCode, web, Error, HttpResponse};
 use diesel::{insert_into, QueryDsl};
