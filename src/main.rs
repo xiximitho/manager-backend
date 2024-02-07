@@ -2,12 +2,12 @@ extern crate diesel;
 
 use actix_web::{web, App, HttpServer};
 use diesel::{r2d2::ConnectionManager, PgConnection};
-use routes::users_config;
+use routes::{patients_config, users_config};
 use std::env;
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[path = "./models/models.rs"]
-mod models;
+pub mod models;
 #[path = "./routes/routes.rs"]
 mod routes;
 mod schema;
@@ -31,6 +31,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .configure(users_config)
+            .configure(patients_config)
     })
     .bind("127.0.0.1:8080")?
     .run()

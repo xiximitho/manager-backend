@@ -1,7 +1,7 @@
-use crate::models::User;
+use crate::models::users::User;
 use crate::schema::users::dsl::*;
 use crate::Pool;
-use crate::{diesel::RunQueryDsl, models::NewUser};
+use crate::{diesel::RunQueryDsl, models::users::NewUser};
 use actix_web::{http::StatusCode, web, Error, HttpResponse};
 use diesel::{insert_into, QueryDsl};
 use serde::{Deserialize, Serialize};
