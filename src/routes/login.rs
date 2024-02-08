@@ -1,12 +1,12 @@
-use crate::json_serialization::login::Login;
+use crate::json_serialization::{login::Login, login_response::LoginResponse};
 use crate::jwt::JwToken;
 use crate::models::users::User;
 use crate::schema::users;
 use crate::Pool;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{http::header::ContentType, web, HttpResponse};
 use diesel::prelude::*;
 
-pub async fn login(credentials: web::Json<Login>, pool: web::Data<Pool>) -> impl Responder {
+pub async fn login(credentials: web::Json<Login>, pool: web::Data<Pool>) -> HttpResponse {
     let mut conn = pool.get().unwrap();
 
     let password = credentials.password.clone();
@@ -15,39 +15,24 @@ pub async fn login(credentials: web::Json<Login>, pool: web::Data<Pool>) -> impl
         .load::<User>(&mut conn)
         .unwrap();
     if users.len() == 0 {
-        return HttpResponse::NotFound();
+        return HttpResponse::NotFound().await.unwrap();
     } else if users.len() > 1 {
-        return HttpResponse::Conflict();
+        return HttpResponse::Conflict().await.unwrap();
     }
-    match users[0].verify(password) {
+    match users[0].clone().verify(password) {
         true => {
-            let token = JwToken::new(users[0].id);
+            let user_id = users[0].clone().id;
+            let token = JwToken::new(user_id);
             let raw_token = token.encode();
+            let response = LoginResponse {
+                token: raw_token.clone(),
+            };
+            let body = serde_json::to_string(&response).unwrap();
             HttpResponse::Ok()
                 .append_header(("token", raw_token))
-                .take()
+                .content_type(ContentType::json())
+                .body(body)
         }
-        false => HttpResponse::Unauthorized(),
+        false => HttpResponse::Unauthorized().await.unwrap(),
     }
 }
-/* find(user_id).get_result::<User>(&mut conn);
-
-let users = users::table
-    .filter(users::columns::username.eq(credentials.username.clone()))
-    .load::<User>(&db.connection)
-    .unwrap();
-if users.len() == 0 {
-    return HttpResponse::NotFound();
-} else if users.len() > 1 {
-    return HttpResponse::Conflict();
-}
-match users[0].verify(password) {
-    true => {
-        let token = JwToken::new(users[0].id);
-        let raw_token = token.encode();
-        HttpResponse::Ok()
-            .append_header(("token", raw_token))
-            .take()
-    }
-    false => HttpResponse::Unauthorized(),
-}*/

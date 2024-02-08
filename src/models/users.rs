@@ -4,9 +4,7 @@ use diesel::prelude::*;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::schema::users;
-
-#[derive(Queryable, Serialize, Identifiable)]
+#[derive(Queryable, Clone, Serialize, Identifiable)]
 #[diesel(table_name = crate::schema::users)]
 pub struct User {
     pub id: i32,
