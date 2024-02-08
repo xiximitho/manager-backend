@@ -1,3 +1,4 @@
+use crate::jwt::JwToken;
 use crate::models::users::User;
 use crate::schema::users::dsl::*;
 use crate::Pool;
@@ -8,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::vec::Vec;
 
-pub async fn get_users(db: web::Data<Pool>) -> HttpResponse {
+pub async fn get_users(db: web::Data<Pool>, _token: JwToken) -> HttpResponse {
     match get_all_users(db).await {
         Ok(vec_users) => {
             let json_result = serde_json::to_string(&json!({ "User": &vec_users}));

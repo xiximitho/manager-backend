@@ -14,8 +14,9 @@ pub fn users_config(app: &mut ServiceConfig) {
         scope("v1/auth")
             .route("login", get().to(login::login))
             .route("login", post().to(login::login))
-            //.route("logout", get().to(logout::logout))
-            .route("ping", get().to(ping)),
+            .route("logout", get().to(login::logout))
+            .route("ping", get().to(ping))
+            .route("users", get().to(users::get_users)),
     );
     /*
     config

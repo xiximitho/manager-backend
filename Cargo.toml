@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+serde_yaml = "0.9.31"
+serde = { version = "1.0.196", features = ["derive"] }
+
 [dependencies]
 actix-cors = "0.7.0"
 actix-rt = "2.9.0"

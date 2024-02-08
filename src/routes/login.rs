@@ -36,3 +36,17 @@ pub async fn login(credentials: web::Json<Login>, pool: web::Data<Pool>) -> Http
         false => HttpResponse::Unauthorized().await.unwrap(),
     }
 }
+
+pub async fn logout() -> HttpResponse {
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(
+            "<html>\
+                <script>\
+                    localStorage.removeItem('user-token'); \
+                    window.location.replace(
+                        document.location.origin);\
+                </script>\
+              </html>",
+        )
+}
