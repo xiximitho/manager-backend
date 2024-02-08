@@ -1,5 +1,5 @@
 use actix_web::web;
-
+mod login;
 #[path = "../handlers/users.rs"]
 mod users;
 
@@ -7,7 +7,8 @@ pub fn users_config(config: &mut web::ServiceConfig) {
     config
         .route("/users", web::get().to(users::get_users))
         .route("/users/{id}", web::get().to(users::get_user_by_id))
-        .route("/users", web::post().to(users::add_user));
+        .route("/users", web::post().to(users::add_user))
+        .route("login", web::get().to(login::login));
 }
 
 #[path = "../handlers/patients.rs"]

@@ -62,6 +62,8 @@ pub struct InputUser {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
+    pub username: String,
+    pub password: String,
 }
 
 // Handler for POST /users
@@ -88,12 +90,14 @@ fn add_single_user(
     item: web::Json<InputUser>,
 ) -> Result<User, diesel::result::Error> {
     let mut conn = db.get().unwrap();
-    let new_user = NewUser {
-        first_name: &item.first_name,
-        last_name: &item.last_name,
-        email: &item.email,
-        created_at: chrono::Local::now().naive_local(),
-    };
+    let new_user = NewUser::new(
+        item.username.clone(),
+        item.email.clone(),
+        item.password.clone(),
+        item.first_name.clone(),
+        item.last_name.clone(),
+    );
+
     let res = insert_into(users).values(&new_user).get_result(&mut conn)?;
     Ok(res)
 }

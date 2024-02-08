@@ -1,9 +1,12 @@
 -- Your SQL goes here
 CREATE TABLE users (
   id SERIAL NOT NULL PRIMARY KEY,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  email TEXT NOT NULL,
+  first_name VARCHAR NOT NULL,
+  last_name VARCHAR NOT NULL,
+  username VARCHAR NOT NULL UNIQUE,
+  email VARCHAR NOT NULL UNIQUE,
+  password VARCHAR NOT NULL,
+  unique_id VARCHAR NOT NULL,
   created_at TIMESTAMP NOT NULL
 );
 

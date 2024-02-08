@@ -1,21 +1,62 @@
+use bcrypt::verify;
+use bcrypt::{hash, DEFAULT_COST};
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use uuid::Uuid;
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
+use crate::schema::users;
+
+#[derive(Queryable, Serialize, Identifiable)]
 #[diesel(table_name = crate::schema::users)]
 pub struct User {
     pub id: i32,
     pub first_name: String,
     pub last_name: String,
     pub email: String,
+    pub username: String,
+    pub password: String,
+    pub unique_id: String,
     pub created_at: chrono::NaiveDateTime,
 }
 
 #[derive(Insertable, Debug)]
 #[diesel(table_name = crate::schema::users)]
-pub struct NewUser<'a> {
-    pub first_name: &'a str,
-    pub last_name: &'a str,
-    pub email: &'a str,
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub unique_id: String,
+    pub email: String,
     pub created_at: chrono::NaiveDateTime,
+}
+
+impl User {
+    pub fn verify(&self, password: String) -> bool {
+        println!("{}", password.as_str());
+        println!("hash {}", &self.password);
+        verify(password.as_str(), &self.password).unwrap()
+    }
+}
+
+impl NewUser {
+    pub fn new(
+        username: String,
+        email: String,
+        password: String,
+        first_name: String,
+        last_name: String,
+    ) -> NewUser {
+        let hashed_password: String = hash(password.as_str(), DEFAULT_COST).unwrap();
+        let uuid = Uuid::new_v4().to_string();
+        return NewUser {
+            username,
+            email,
+            password: hashed_password,
+            unique_id: uuid,
+            created_at: chrono::Local::now().naive_local(),
+            first_name,
+            last_name,
+        };
+    }
 }

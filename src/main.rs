@@ -1,11 +1,14 @@
 extern crate diesel;
-
+mod json_serialization;
+use actix_cors::Cors;
+use actix_service::Service;
 use actix_web::{web, App, HttpServer};
 use diesel::{r2d2::ConnectionManager, PgConnection};
 use routes::{patients_config, users_config};
 use std::env;
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
+mod jwt;
 #[path = "./models/models.rs"]
 pub mod models;
 #[path = "./routes/routes.rs"]
@@ -28,9 +31,23 @@ async fn main() -> std::io::Result<()> {
 
     // Start http server
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         App::new()
+            .wrap_fn(|req, srv| {
+                println!("{:?}", req);
+                let future = srv.call(req);
+                async {
+                    let result = future.await?;
+                    Ok(result)
+                }
+            })
             .app_data(web::Data::new(pool.clone()))
             .configure(users_config)
+            .wrap(cors)
             .configure(patients_config)
     })
     .bind("127.0.0.1:8080")?
